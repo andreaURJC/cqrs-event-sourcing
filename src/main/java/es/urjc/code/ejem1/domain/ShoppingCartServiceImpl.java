@@ -1,100 +1,108 @@
 package es.urjc.code.ejem1.domain;
 
+import es.urjc.code.ejem1.infrastructure.CartExpenditureEventPublisher;
 import org.modelmapper.ModelMapper;
 
 public class ShoppingCartServiceImpl implements ShoppingCartService {
 
-	private ShoppingCartRepository shoppingCartRepository;
-	private ProductRepository productRepository;
-	private ValidationService validationService;
-	
-	private ModelMapper mapper = new ModelMapper();
+    private ShoppingCartRepository shoppingCartRepository;
+    private ProductRepository productRepository;
+    private ValidationService validationService;
+    private CartExpenditureEventPublisher cartExpenditureEventPublisher;
 
-	public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository,
-	        ProductRepository productRepository,
-	        ValidationService validationService) {
-		this.shoppingCartRepository = shoppingCartRepository;
-		this.productRepository = productRepository;
-		this.validationService = validationService;
-	}
-	
-	private FullShoppingCartDTO saveShoppingCart(FullShoppingCartDTO fullShoppingCartDTO) {
-		FullShoppingCartDTO saveFullShoppingCartDTO = shoppingCartRepository.save(fullShoppingCartDTO);
+    private ModelMapper mapper = new ModelMapper();
 
-		return (saveFullShoppingCartDTO != null) ? saveFullShoppingCartDTO : fullShoppingCartDTO;
-	}
+    public ShoppingCartServiceImpl(ShoppingCartRepository shoppingCartRepository,
+                                   ProductRepository productRepository,
+                                   ValidationService validationService, CartExpenditureEventPublisher cartExpenditureEventPublisher) {
+        this.shoppingCartRepository = shoppingCartRepository;
+        this.productRepository = productRepository;
+        this.validationService = validationService;
+        this.cartExpenditureEventPublisher = cartExpenditureEventPublisher;
+    }
 
-	@Override
-	public FullShoppingCartDTO getShoppingCart(Long id) {
-		return mapper.map(shoppingCartRepository.findById(id), FullShoppingCartDTO.class);
-	}
+    private FullShoppingCartDTO saveShoppingCart(FullShoppingCartDTO fullShoppingCartDTO) {
+        FullShoppingCartDTO saveFullShoppingCartDTO = shoppingCartRepository.save(fullShoppingCartDTO);
 
-	@Override
-	public FullShoppingCartDTO createShoppingCart() {
-		ShoppingCart shoppingCart = new ShoppingCart();
-		FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
-		
-		return saveShoppingCart(fullShoppingCartDTO);
-	}
+        return (saveFullShoppingCartDTO != null) ? saveFullShoppingCartDTO : fullShoppingCartDTO;
+    }
 
-	@Override
-	public FullShoppingCartDTO updateShoppingCart(Long id, ShoppingCartDTO shoppingCartDTO) {
-		FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(id);
+    @Override
+    public FullShoppingCartDTO getShoppingCart(Long id) {
+        return mapper.map(shoppingCartRepository.findById(id), FullShoppingCartDTO.class);
+    }
 
-		ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
-		ShoppingCart updateShoppingCart = mapper.map(shoppingCartDTO, ShoppingCart.class);
+    @Override
+    public FullShoppingCartDTO createShoppingCart() {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
 
-		if (updateShoppingCart.getStatus() != null &&
-		        updateShoppingCart.getStatus() == ShoppingCartStatus.COMPLETED) {
-			shoppingCart.setValidationService(validationService);
-			shoppingCart.validate();
-		}
+        return saveShoppingCart(fullShoppingCartDTO);
+    }
 
-		FullShoppingCartDTO newShoppingCartDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
-		
-		return saveShoppingCart(newShoppingCartDTO);
-	}
+    @Override
+    public FullShoppingCartDTO updateShoppingCart(Long id, ShoppingCartDTO shoppingCartDTO) {
+        FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(id);
 
-	@Override
-	public FullShoppingCartDTO deleteShoppingCart(Long id) {
-		FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(id);
-		shoppingCartRepository.deleteById(id);
+        ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
+        ShoppingCart updateShoppingCart = mapper.map(shoppingCartDTO, ShoppingCart.class);
 
-		return fullShoppingCartDTO;
-	}
+        if (updateShoppingCart.getStatus() != null &&
+                updateShoppingCart.getStatus() == ShoppingCartStatus.COMPLETED) {
+            shoppingCart.setValidationService(validationService);
+            shoppingCart.validate();
+        }
 
-	@Override
-	public FullShoppingCartDTO addProduct(Long idShoppingCart, Long idProduct, int quantity) {
-		FullProductDTO fullProductDTO = productRepository.findById(idProduct);
-		FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(idShoppingCart);
+        FullShoppingCartDTO newShoppingCartDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+        FullShoppingCartDTO savedFullShoppingCartDTO = saveShoppingCart(newShoppingCartDTO);
 
-		return addProduct(fullProductDTO, fullShoppingCartDTO, quantity);
-	}
+        if (shoppingCart.isCompleted()) {
+            this.cartExpenditureEventPublisher.publish(new FullCartExpenditureDTO(savedFullShoppingCartDTO.getId(), savedFullShoppingCartDTO.getPrice()));
+        }
 
-	public FullShoppingCartDTO addProduct(FullProductDTO fullProductDTO, FullShoppingCartDTO fullShoppingCartDTO,
-	        int quantity) {
-		ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
-		shoppingCart.removeItem(fullProductDTO.getId());
+        return savedFullShoppingCartDTO;
+    }
 
-		ShoppingCartItem shoppingCartItem = new ShoppingCartItem(
-		        mapper.map(fullProductDTO, Product.class),
-		        quantity);
-		shoppingCart.addItem(shoppingCartItem);
+    @Override
+    public FullShoppingCartDTO deleteShoppingCart(Long id) {
+        FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(id);
+        shoppingCartRepository.deleteById(id);
 
-		FullShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+        return fullShoppingCartDTO;
+    }
 
-		return saveShoppingCart(newFullProductDTO);
-	}
+    @Override
+    public FullShoppingCartDTO addProduct(Long idShoppingCart, Long idProduct, int quantity) {
+        FullProductDTO fullProductDTO = productRepository.findById(idProduct);
+        FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(idShoppingCart);
 
-	@Override
-	public FullShoppingCartDTO deleteProduct(Long idShoppingCart, Long idProduct) {
-		FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(idShoppingCart);
+        return addProduct(fullProductDTO, fullShoppingCartDTO, quantity);
+    }
 
-		ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
-		shoppingCart.removeItem(idProduct);
+    public FullShoppingCartDTO addProduct(FullProductDTO fullProductDTO, FullShoppingCartDTO fullShoppingCartDTO,
+                                          int quantity) {
+        ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
+        shoppingCart.removeItem(fullProductDTO.getId());
 
-		FullShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+        ShoppingCartItem shoppingCartItem = new ShoppingCartItem(
+                mapper.map(fullProductDTO, Product.class),
+                quantity);
+        shoppingCart.addItem(shoppingCartItem);
 
-		return saveShoppingCart(newFullProductDTO);
-	}
+        FullShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+
+        return saveShoppingCart(newFullProductDTO);
+    }
+
+    @Override
+    public FullShoppingCartDTO deleteProduct(Long idShoppingCart, Long idProduct) {
+        FullShoppingCartDTO fullShoppingCartDTO = shoppingCartRepository.findById(idShoppingCart);
+
+        ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
+        shoppingCart.removeItem(idProduct);
+
+        FullShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+
+        return saveShoppingCart(newFullProductDTO);
+    }
 }

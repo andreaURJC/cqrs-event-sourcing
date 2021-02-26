@@ -40,8 +40,8 @@ public class DatabaseLoader implements CommandLineRunner {
         productRepository.save(mapper.map(product2, FullProductDTO.class));
         productRepository.save(mapper.map(product3, FullProductDTO.class));
 
-        FullCartExpenditureDTO fullCartExpenditureDTO = new FullCartExpenditureDTO(1, 100);
-        FullCartExpenditureDTO fullCartExpenditureDTO2 = new FullCartExpenditureDTO(2, 80);
+        FullCartExpenditureDTO fullCartExpenditureDTO = new FullCartExpenditureDTO(1L, 100.0);
+        FullCartExpenditureDTO fullCartExpenditureDTO2 = new FullCartExpenditureDTO(2L, 80.0);
 
         cartExpenditureRepository.save(fullCartExpenditureDTO);
         cartExpenditureRepository.save(fullCartExpenditureDTO2);

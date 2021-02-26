@@ -92,4 +92,8 @@ public class ShoppingCart {
 		}
 	}
 
+	public boolean isCompleted() {
+		return ShoppingCartStatus.COMPLETED.equals(this.status);
+	}
+
 }

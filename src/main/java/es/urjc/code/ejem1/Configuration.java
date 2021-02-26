@@ -1,7 +1,9 @@
 package es.urjc.code.ejem1;
 
 import es.urjc.code.ejem1.domain.*;
+import es.urjc.code.ejem1.infrastructure.CartExpenditureEventPublisher;
 import es.urjc.code.ejem1.infrastructure.SpringDataJPACartExpenditureRepositoryAdapter;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 
 import es.urjc.code.ejem1.infrastructure.SpringDataJPAProductRepositoryAdapter;
@@ -14,11 +16,13 @@ public class Configuration {
 	@Bean
 	public ShoppingCartService shoppingCartService(
 	        SpringDataJPAShoppingCartRepositoryAdapter shoppingCartRepositoryAdapter,
-	        SpringDataJPAProductRepositoryAdapter productRepositoryAdapter) {
+	        SpringDataJPAProductRepositoryAdapter productRepositoryAdapter,
+			CartExpenditureEventPublisher cartExpenditureEventPublisher) {
 		return new ShoppingCartServiceImpl(
 		        shoppingCartRepositoryAdapter,
 		        productRepositoryAdapter,
-		        new ValidationServiceImpl());
+		        new ValidationServiceImpl(),
+				cartExpenditureEventPublisher);
 	}
 
 	@Bean
@@ -29,6 +33,11 @@ public class Configuration {
 	@Bean
 	public CartExpenditureService cartExpenditureService(SpringDataJPACartExpenditureRepositoryAdapter repositoryAdapter) {
 		return new CartExpenditureServiceImpl(repositoryAdapter);
+	}
+
+	@Bean
+	public CartExpenditureEventPublisher applicationEventPublisher(ApplicationEventPublisher applicationEventPublisher){
+		return new CartExpenditureEventPublisher(applicationEventPublisher);
 	}
 
 }

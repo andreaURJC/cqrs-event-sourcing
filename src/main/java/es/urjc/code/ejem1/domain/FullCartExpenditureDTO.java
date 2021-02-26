@@ -2,31 +2,31 @@ package es.urjc.code.ejem1.domain;
 
 public class FullCartExpenditureDTO {
 
-    private int id;
-    private double expenditure;
+    private Long id;
+    private Double expenditure;
 
     public FullCartExpenditureDTO() {
         super();
     }
 
-    public FullCartExpenditureDTO(int id, double expenditure) {
+    public FullCartExpenditureDTO(Long id, Double expenditure) {
         this.id = id;
         this.expenditure = expenditure;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public double getExpenditure() {
+    public Double getExpenditure() {
         return expenditure;
     }
 
-    public void setExpenditure(double expenditure) {
+    public void setExpenditure(Double expenditure) {
         this.expenditure = expenditure;
     }
 }
