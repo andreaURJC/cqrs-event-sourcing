@@ -1,6 +1,7 @@
 package es.urjc.code.ejem1.controller;
 
-import es.urjc.code.ejem1.domain.CartExpenditureService;
+import es.urjc.code.ejem1.controller.dto.CartExpenditureResponseDTO;
+import es.urjc.code.ejem1.domain.service.CartExpenditureService;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

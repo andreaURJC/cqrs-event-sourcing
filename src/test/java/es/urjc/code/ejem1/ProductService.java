@@ -1,26 +1,26 @@
 package es.urjc.code.ejem1;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-
+import es.urjc.code.ejem1.domain.command.ProductCommandServiceImpl;
+import es.urjc.code.ejem1.domain.dto.FullProductDTO;
+import es.urjc.code.ejem1.domain.dto.ProductDTO;
+import es.urjc.code.ejem1.domain.model.Product;
+import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
+import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import org.modelmapper.ModelMapper;
 
-import es.urjc.code.ejem1.domain.FullProductDTO;
-import es.urjc.code.ejem1.domain.Product;
-import es.urjc.code.ejem1.domain.ProductDTO;
-import es.urjc.code.ejem1.domain.ProductRepository;
-import es.urjc.code.ejem1.domain.ProductServiceImpl;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @TestMethodOrder(OrderAnnotation.class)
 public class ProductService {
 
-	private ProductRepository productRepository;
-	private ProductServiceImpl productService;
+	private SpringDataJPAProductRepository productRepository;
+	private ProductCommandServiceImpl productService;
 
 	private ModelMapper mapper = new ModelMapper();
 
@@ -28,8 +28,8 @@ public class ProductService {
 
 	@BeforeEach
 	void setUp() {
-		productRepository = mock(ProductRepository.class);
-		productService = new ProductServiceImpl(productRepository);
+		productRepository = mock(SpringDataJPAProductRepository.class);
+		productService = new ProductCommandServiceImpl(productRepository);
 	}
 
 	@Test
@@ -43,7 +43,7 @@ public class ProductService {
 		ProductDTO productDTO = mapper.map(product, ProductDTO.class);
 
 		createdProduct = productService.createProduct(productDTO);
-		verify(productRepository).save(createdProduct);
+		verify(productRepository).save(mapper.map(createdProduct, ProductEntity.class));
 	}
 
 	@Test
