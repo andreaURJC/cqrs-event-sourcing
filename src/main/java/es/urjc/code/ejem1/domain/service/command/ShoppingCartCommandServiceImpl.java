@@ -1,4 +1,4 @@
-package es.urjc.code.ejem1.domain.command;
+package es.urjc.code.ejem1.domain.service.command;
 
 import es.urjc.code.ejem1.domain.service.ValidationService;
 import es.urjc.code.ejem1.domain.dto.FullCartExpenditureDTO;
@@ -9,11 +9,16 @@ import es.urjc.code.ejem1.domain.model.Product;
 import es.urjc.code.ejem1.domain.model.ShoppingCart;
 import es.urjc.code.ejem1.domain.model.ShoppingCartItem;
 import es.urjc.code.ejem1.domain.model.ShoppingCartStatus;
+import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
 import es.urjc.code.ejem1.infrastructure.eventbus.CartExpenditureEventPublisher;
 import es.urjc.code.ejem1.infrastructure.entity.ShoppingCartEntity;
+import es.urjc.code.ejem1.infrastructure.exception.ProductNotFoundException;
+import es.urjc.code.ejem1.infrastructure.exception.ShoppingCartNotFoundException;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAShoppingCartRepository;
 import org.modelmapper.ModelMapper;
+
+import java.util.Optional;
 
 public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandService {
 
@@ -51,7 +56,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
 
     @Override
     public FullShoppingCartDTO updateShoppingCart(Long id, ShoppingCartDTO shoppingCartDTO) {
-        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(id), FullShoppingCartDTO.class);
+        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(id).orElseThrow(() -> new ShoppingCartNotFoundException()), FullShoppingCartDTO.class);
 
         ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
         ShoppingCart updateShoppingCart = mapper.map(shoppingCartDTO, ShoppingCart.class);
@@ -74,7 +79,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
 
     @Override
     public FullShoppingCartDTO deleteShoppingCart(Long id) {
-        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(id), FullShoppingCartDTO.class);
+        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(id).orElseThrow(() -> new ProductNotFoundException()), FullShoppingCartDTO.class);
         shoppingCartRepository.deleteById(id);
 
         return fullShoppingCartDTO;
@@ -82,8 +87,10 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
 
     @Override
     public FullShoppingCartDTO addProduct(Long idShoppingCart, Long idProduct, int quantity) {
-        FullProductDTO fullProductDTO = mapper.map(productRepository.findById(idProduct), FullProductDTO.class);
-        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(idShoppingCart), FullShoppingCartDTO.class);
+        FullProductDTO fullProductDTO = mapper.map(productRepository.findById(idProduct)
+                .orElseThrow(() -> new ProductNotFoundException()), FullProductDTO.class);
+        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(idShoppingCart)
+                .orElseThrow(() -> new ShoppingCartNotFoundException()), FullShoppingCartDTO.class);
 
         return addProduct(fullProductDTO, fullShoppingCartDTO, quantity);
     }
@@ -105,7 +112,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
 
     @Override
     public FullShoppingCartDTO deleteProduct(Long idShoppingCart, Long idProduct) {
-        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(idShoppingCart), FullShoppingCartDTO.class);
+        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(idShoppingCart).orElseThrow(() -> new ProductNotFoundException()), FullShoppingCartDTO.class);
 
         ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
         shoppingCart.removeItem(idProduct);

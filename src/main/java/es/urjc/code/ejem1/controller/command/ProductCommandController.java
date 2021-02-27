@@ -2,7 +2,7 @@ package es.urjc.code.ejem1.controller.command;
 
 import es.urjc.code.ejem1.controller.dto.ProductRequestDTO;
 import es.urjc.code.ejem1.controller.dto.ProductResponseDTO;
-import es.urjc.code.ejem1.domain.command.ProductCommandService;
+import es.urjc.code.ejem1.domain.service.command.ProductCommandService;
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.ProductDTO;
 import org.modelmapper.ModelMapper;

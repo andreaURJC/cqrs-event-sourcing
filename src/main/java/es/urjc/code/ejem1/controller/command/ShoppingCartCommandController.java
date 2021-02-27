@@ -2,7 +2,7 @@ package es.urjc.code.ejem1.controller.command;
 
 import es.urjc.code.ejem1.controller.dto.ShoppingCartRequestDTO;
 import es.urjc.code.ejem1.controller.dto.ShoppingCartResponseDTO;
-import es.urjc.code.ejem1.domain.command.ShoppingCartCommandService;
+import es.urjc.code.ejem1.domain.service.command.ShoppingCartCommandService;
 import es.urjc.code.ejem1.domain.dto.FullShoppingCartDTO;
 import es.urjc.code.ejem1.domain.dto.ShoppingCartDTO;
 import org.modelmapper.ModelMapper;

@@ -1,7 +1,7 @@
 package es.urjc.code.ejem1;
 
-import es.urjc.code.ejem1.domain.command.ProductCommandServiceImpl;
-import es.urjc.code.ejem1.domain.command.ShoppingCartCommandServiceImpl;
+import es.urjc.code.ejem1.domain.service.command.ProductCommandServiceImpl;
+import es.urjc.code.ejem1.domain.service.command.ShoppingCartCommandServiceImpl;
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.FullShoppingCartDTO;
 import es.urjc.code.ejem1.domain.dto.FullShoppingCartItemDTO;

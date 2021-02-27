@@ -1,8 +1,9 @@
-package es.urjc.code.ejem1.domain.command;
+package es.urjc.code.ejem1.domain.service.command;
 
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.ProductDTO;
 import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
+import es.urjc.code.ejem1.infrastructure.exception.ProductNotFoundException;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import org.modelmapper.ModelMapper;
 
@@ -25,7 +26,7 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     @Override
     public FullProductDTO deleteProduct(Long id) {
-        FullProductDTO product = mapper.map(repository.findById(id), FullProductDTO.class);
+        FullProductDTO product = mapper.map(repository.findById(id).orElseThrow(() -> new ProductNotFoundException()), FullProductDTO.class);
         repository.deleteById(id);
 
         return product;

@@ -1,4 +1,4 @@
-package es.urjc.code.ejem1.domain.command;
+package es.urjc.code.ejem1.domain.service.command;
 
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.FullShoppingCartDTO;

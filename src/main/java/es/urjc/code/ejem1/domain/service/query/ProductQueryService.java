@@ -1,4 +1,4 @@
-package es.urjc.code.ejem1.domain.query;
+package es.urjc.code.ejem1.domain.service.query;
 
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 

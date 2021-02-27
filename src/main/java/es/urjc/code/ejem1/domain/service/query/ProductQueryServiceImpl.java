@@ -1,6 +1,7 @@
-package es.urjc.code.ejem1.domain.query;
+package es.urjc.code.ejem1.domain.service.query;
 
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
+import es.urjc.code.ejem1.infrastructure.exception.ProductNotFoundException;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import org.modelmapper.ModelMapper;
 
@@ -23,6 +24,6 @@ public class ProductQueryServiceImpl implements ProductQueryService {
 
     @Override
     public FullProductDTO getProduct(Long id) {
-        return mapper.map(repository.findById(id), FullProductDTO.class);
+        return mapper.map(repository.findById(id).orElseThrow(() -> new ProductNotFoundException()), FullProductDTO.class);
     }
 }

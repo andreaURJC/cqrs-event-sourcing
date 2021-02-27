@@ -1,7 +1,7 @@
 package es.urjc.code.ejem1.controller.query;
 
 import es.urjc.code.ejem1.controller.dto.ProductResponseDTO;
-import es.urjc.code.ejem1.domain.query.ProductQueryService;
+import es.urjc.code.ejem1.domain.service.query.ProductQueryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,6 +18,9 @@ public class ProductQueryController {
     private ProductQueryService productService;
     private ModelMapper mapper = new ModelMapper();
 
+    public ProductQueryController(ProductQueryService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping
     public Collection<ProductResponseDTO> getProducts() {

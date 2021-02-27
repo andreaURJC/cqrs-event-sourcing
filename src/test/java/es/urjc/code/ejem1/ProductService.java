@@ -1,6 +1,6 @@
 package es.urjc.code.ejem1;
 
-import es.urjc.code.ejem1.domain.command.ProductCommandServiceImpl;
+import es.urjc.code.ejem1.domain.service.command.ProductCommandServiceImpl;
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.ProductDTO;
 import es.urjc.code.ejem1.domain.model.Product;

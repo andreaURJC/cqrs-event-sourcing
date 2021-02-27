@@ -1,7 +1,7 @@
 package es.urjc.code.ejem1.controller.query;
 
 import es.urjc.code.ejem1.controller.dto.ShoppingCartResponseDTO;
-import es.urjc.code.ejem1.domain.query.ShoppingCartQueryService;
+import es.urjc.code.ejem1.domain.service.query.ShoppingCartQueryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
