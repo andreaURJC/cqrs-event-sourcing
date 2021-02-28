@@ -1,10 +1,12 @@
 package es.urjc.code.ejem1;
 
-import es.urjc.code.ejem1.domain.service.command.ProductCommandServiceImpl;
+import es.urjc.code.ejem1.domain.dto.CreateProductDTO;
+import es.urjc.code.ejem1.domain.dto.DeleteProductDTO;
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.ProductDTO;
 import es.urjc.code.ejem1.domain.model.Product;
-import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
+import es.urjc.code.ejem1.domain.service.command.ProductCommandServiceImpl;
+import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -19,8 +21,9 @@ import static org.mockito.Mockito.verify;
 @TestMethodOrder(OrderAnnotation.class)
 public class ProductService {
 
-	private SpringDataJPAProductRepository productRepository;
+	private ProductEventPublisher publisher;
 	private ProductCommandServiceImpl productService;
+	private SpringDataJPAProductRepository productRepository;
 
 	private ModelMapper mapper = new ModelMapper();
 
@@ -28,8 +31,8 @@ public class ProductService {
 
 	@BeforeEach
 	void setUp() {
-		productRepository = mock(SpringDataJPAProductRepository.class);
-		productService = new ProductCommandServiceImpl(productRepository);
+		publisher = mock(ProductEventPublisher.class);
+		productService = new ProductCommandServiceImpl(publisher, productRepository);
 	}
 
 	@Test
@@ -43,13 +46,13 @@ public class ProductService {
 		ProductDTO productDTO = mapper.map(product, ProductDTO.class);
 
 		createdProduct = productService.createProduct(productDTO);
-		verify(productRepository).save(mapper.map(createdProduct, ProductEntity.class));
+		verify(publisher).publish(mapper.map(createdProduct, CreateProductDTO.class));
 	}
 
 	@Test
 	@Order(2)
 	void productCanBeDeleted() {
 		productService.deleteProduct(createdProduct.getId());
-		verify(productRepository).deleteById(createdProduct.getId());
+		verify(publisher).publish(new DeleteProductDTO(createdProduct.getId()));
 	}
 }

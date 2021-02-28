@@ -1,33 +1,44 @@
 package es.urjc.code.ejem1.domain.service.command;
 
+import es.urjc.code.ejem1.domain.dto.CreateProductDTO;
+import es.urjc.code.ejem1.domain.dto.DeleteProductDTO;
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.ProductDTO;
-import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
+import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
 import es.urjc.code.ejem1.infrastructure.exception.ProductNotFoundException;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import org.modelmapper.ModelMapper;
 
 public class ProductCommandServiceImpl implements ProductCommandService {
 
-    private SpringDataJPAProductRepository repository;
-    ModelMapper mapper = new ModelMapper();
+    private ProductEventPublisher publisher;
+    private final SpringDataJPAProductRepository repository;
 
-    public ProductCommandServiceImpl(SpringDataJPAProductRepository repository) {
+    ModelMapper mapper = new ModelMapper();
+    long id = 4L;
+
+    public ProductCommandServiceImpl(ProductEventPublisher publisher, SpringDataJPAProductRepository repository) {
+        this.publisher = publisher;
         this.repository = repository;
     }
 
     @Override
     public FullProductDTO createProduct(ProductDTO productDTO) {
-        ProductEntity productEntity = mapper.map(productDTO, ProductEntity.class);
-        FullProductDTO saveFullProductDTO = mapper.map(repository.save(productEntity), FullProductDTO.class);
 
-        return saveFullProductDTO;
+        //TODO convertir a UUID
+        id += 1L;
+        productDTO.setId(id);
+        CreateProductDTO createProductDto = mapper.map(productDTO, CreateProductDTO.class);
+        publisher.publish(createProductDto);
+
+        return mapper.map(productDTO, FullProductDTO.class);
     }
 
     @Override
     public FullProductDTO deleteProduct(Long id) {
+        DeleteProductDTO productDto = new DeleteProductDTO(id);
         FullProductDTO product = mapper.map(repository.findById(id).orElseThrow(() -> new ProductNotFoundException()), FullProductDTO.class);
-        repository.deleteById(id);
+        publisher.publish(productDto);
 
         return product;
     }

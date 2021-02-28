@@ -10,6 +10,7 @@ import es.urjc.code.ejem1.domain.model.Product;
 import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
 import es.urjc.code.ejem1.infrastructure.entity.ShoppingCartEntity;
 import es.urjc.code.ejem1.infrastructure.eventbus.CartExpenditureEventPublisher;
+import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAShoppingCartRepository;
 import es.urjc.code.ejem1.service.ValidationServiceImpl;
@@ -30,12 +31,13 @@ import static org.mockito.Mockito.verify;
 public class ShoppingCartService {
 
     private SpringDataJPAProductRepository productRepository;
+    private ProductEventPublisher productEventPublisher;
     private ProductCommandServiceImpl productService;
 
     private SpringDataJPAShoppingCartRepository shoppingCartRepository;
     private ShoppingCartCommandServiceImpl shoppingCartService;
 
-    private CartExpenditureEventPublisher publisher;
+    private CartExpenditureEventPublisher cartExpenditureEventPublisher;
 
     private ModelMapper mapper = new ModelMapper();
 
@@ -45,14 +47,14 @@ public class ShoppingCartService {
     void setUp() {
         productRepository = mock(SpringDataJPAProductRepository.class);
         shoppingCartRepository = mock(SpringDataJPAShoppingCartRepository.class);
-        publisher = mock(CartExpenditureEventPublisher.class);
+        cartExpenditureEventPublisher = mock(CartExpenditureEventPublisher.class);
 
-        productService = new ProductCommandServiceImpl(productRepository);
+        productService = new ProductCommandServiceImpl(productEventPublisher, productRepository);
         shoppingCartService = new ShoppingCartCommandServiceImpl(
                 shoppingCartRepository,
                 productRepository,
                 new ValidationServiceImpl(),
-                publisher);
+                cartExpenditureEventPublisher);
     }
 
     @Test
