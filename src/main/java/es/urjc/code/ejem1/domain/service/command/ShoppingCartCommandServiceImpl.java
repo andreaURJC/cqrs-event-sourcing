@@ -1,10 +1,7 @@
 package es.urjc.code.ejem1.domain.service.command;
 
+import es.urjc.code.ejem1.domain.dto.*;
 import es.urjc.code.ejem1.domain.service.ValidationService;
-import es.urjc.code.ejem1.domain.dto.FullCartExpenditureDTO;
-import es.urjc.code.ejem1.domain.dto.FullProductDTO;
-import es.urjc.code.ejem1.domain.dto.FullShoppingCartDTO;
-import es.urjc.code.ejem1.domain.dto.ShoppingCartDTO;
 import es.urjc.code.ejem1.domain.model.Product;
 import es.urjc.code.ejem1.domain.model.ShoppingCart;
 import es.urjc.code.ejem1.domain.model.ShoppingCartItem;
@@ -12,6 +9,8 @@ import es.urjc.code.ejem1.domain.model.ShoppingCartStatus;
 import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
 import es.urjc.code.ejem1.infrastructure.eventbus.CartExpenditureEventPublisher;
 import es.urjc.code.ejem1.infrastructure.entity.ShoppingCartEntity;
+import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
+import es.urjc.code.ejem1.infrastructure.eventbus.ShoppingCartEventPublisher;
 import es.urjc.code.ejem1.infrastructure.exception.ProductNotFoundException;
 import es.urjc.code.ejem1.infrastructure.exception.ShoppingCartNotFoundException;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
@@ -26,22 +25,27 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
     private SpringDataJPAProductRepository productRepository;
     private ValidationService validationService;
     private CartExpenditureEventPublisher cartExpenditureEventPublisher;
+    private ShoppingCartEventPublisher publisher;
+
 
     private ModelMapper mapper = new ModelMapper();
+    long id = 1L;
 
     public ShoppingCartCommandServiceImpl(SpringDataJPAShoppingCartRepository shoppingCartRepository,
                                           SpringDataJPAProductRepository productRepository,
                                           ValidationService validationService,
-                                          CartExpenditureEventPublisher cartExpenditureEventPublisher) {
+                                          CartExpenditureEventPublisher cartExpenditureEventPublisher,
+                                          ShoppingCartEventPublisher publisher) {
         this.shoppingCartRepository = shoppingCartRepository;
         this.productRepository = productRepository;
         this.validationService = validationService;
         this.cartExpenditureEventPublisher = cartExpenditureEventPublisher;
+        this.publisher = publisher;
     }
 
-    private FullShoppingCartDTO saveShoppingCart(FullShoppingCartDTO fullShoppingCartDTO) {
-        ShoppingCartEntity shoppingCartEntity = shoppingCartRepository.save(mapper.map(fullShoppingCartDTO, ShoppingCartEntity.class));
-        FullShoppingCartDTO saveFullShoppingCartDTO = mapper.map(shoppingCartEntity, FullShoppingCartDTO.class);
+    private FullShoppingCartDTO saveShoppingCart(SaveShoppingCartDTO saveShoppingCartDTO) {
+        publisher.publish(saveShoppingCartDTO);
+        FullShoppingCartDTO saveFullShoppingCartDTO = mapper.map(saveShoppingCartDTO, FullShoppingCartDTO.class);
 
         return saveFullShoppingCartDTO;
     }
@@ -49,9 +53,11 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
     @Override
     public FullShoppingCartDTO createShoppingCart() {
         ShoppingCart shoppingCart = new ShoppingCart();
-        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+        shoppingCart.setId(id);
+        id += 1;
+        SaveShoppingCartDTO saveShoppingCartDTO = mapper.map(shoppingCart, SaveShoppingCartDTO.class);
 
-        return saveShoppingCart(fullShoppingCartDTO);
+        return saveShoppingCart(saveShoppingCartDTO);
     }
 
     @Override
@@ -67,7 +73,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
             shoppingCart.validate();
         }
 
-        FullShoppingCartDTO newShoppingCartDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+        SaveShoppingCartDTO newShoppingCartDTO = mapper.map(shoppingCart, SaveShoppingCartDTO.class);
         FullShoppingCartDTO savedFullShoppingCartDTO = saveShoppingCart(newShoppingCartDTO);
 
         if (shoppingCart.isCompleted()) {
@@ -105,7 +111,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
                 quantity);
         shoppingCart.addItem(shoppingCartItem);
 
-        FullShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+        SaveShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, SaveShoppingCartDTO.class);
 
         return saveShoppingCart(newFullProductDTO);
     }
@@ -117,7 +123,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
         ShoppingCart shoppingCart = mapper.map(fullShoppingCartDTO, ShoppingCart.class);
         shoppingCart.removeItem(idProduct);
 
-        FullShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, FullShoppingCartDTO.class);
+        SaveShoppingCartDTO newFullProductDTO = mapper.map(shoppingCart, SaveShoppingCartDTO.class);
 
         return saveShoppingCart(newFullProductDTO);
     }

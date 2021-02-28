@@ -12,6 +12,7 @@ import es.urjc.code.ejem1.domain.service.query.ShoppingCartQueryService;
 import es.urjc.code.ejem1.domain.service.query.ShoppingCartQueryServiceImpl;
 import es.urjc.code.ejem1.infrastructure.eventbus.CartExpenditureEventPublisher;
 import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
+import es.urjc.code.ejem1.infrastructure.eventbus.ShoppingCartEventPublisher;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPACartExpenditureRepositoryAdapter;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAShoppingCartRepository;
@@ -27,12 +28,14 @@ public class AppConfiguration {
 	public ShoppingCartCommandService shoppingCartCommandService(
 			SpringDataJPAShoppingCartRepository shoppingCartRepository,
 			SpringDataJPAProductRepository productRepository,
-			CartExpenditureEventPublisher cartExpenditureEventPublisher) {
+			CartExpenditureEventPublisher cartExpenditureEventPublisher,
+			ShoppingCartEventPublisher shoppingCartEventPublisher) {
 		return new ShoppingCartCommandServiceImpl(
 				shoppingCartRepository,
 				productRepository,
 		        new ValidationServiceImpl(),
-				cartExpenditureEventPublisher);
+				cartExpenditureEventPublisher,
+				shoppingCartEventPublisher);
 	}
 
 	@Bean
@@ -53,11 +56,6 @@ public class AppConfiguration {
 	@Bean
 	public CartExpenditureService cartExpenditureService(SpringDataJPACartExpenditureRepositoryAdapter repositoryAdapter) {
 		return new CartExpenditureServiceImpl(repositoryAdapter);
-	}
-
-	@Bean
-	public CartExpenditureEventPublisher applicationEventPublisher(ApplicationEventPublisher applicationEventPublisher){
-		return new CartExpenditureEventPublisher(applicationEventPublisher);
 	}
 
 }

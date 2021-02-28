@@ -1,16 +1,14 @@
 package es.urjc.code.ejem1;
 
+import es.urjc.code.ejem1.domain.dto.*;
 import es.urjc.code.ejem1.domain.service.command.ProductCommandServiceImpl;
 import es.urjc.code.ejem1.domain.service.command.ShoppingCartCommandServiceImpl;
-import es.urjc.code.ejem1.domain.dto.FullProductDTO;
-import es.urjc.code.ejem1.domain.dto.FullShoppingCartDTO;
-import es.urjc.code.ejem1.domain.dto.FullShoppingCartItemDTO;
-import es.urjc.code.ejem1.domain.dto.ProductDTO;
 import es.urjc.code.ejem1.domain.model.Product;
 import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
 import es.urjc.code.ejem1.infrastructure.entity.ShoppingCartEntity;
 import es.urjc.code.ejem1.infrastructure.eventbus.CartExpenditureEventPublisher;
 import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
+import es.urjc.code.ejem1.infrastructure.eventbus.ShoppingCartEventPublisher;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAShoppingCartRepository;
 import es.urjc.code.ejem1.service.ValidationServiceImpl;
@@ -38,6 +36,7 @@ public class ShoppingCartService {
     private ShoppingCartCommandServiceImpl shoppingCartService;
 
     private CartExpenditureEventPublisher cartExpenditureEventPublisher;
+    private ShoppingCartEventPublisher shoppingCartEventPublisher;
 
     private ModelMapper mapper = new ModelMapper();
 
@@ -48,20 +47,22 @@ public class ShoppingCartService {
         productRepository = mock(SpringDataJPAProductRepository.class);
         shoppingCartRepository = mock(SpringDataJPAShoppingCartRepository.class);
         cartExpenditureEventPublisher = mock(CartExpenditureEventPublisher.class);
+        shoppingCartEventPublisher = mock(ShoppingCartEventPublisher.class);
 
         productService = new ProductCommandServiceImpl(productEventPublisher, productRepository);
         shoppingCartService = new ShoppingCartCommandServiceImpl(
                 shoppingCartRepository,
                 productRepository,
                 new ValidationServiceImpl(),
-                cartExpenditureEventPublisher);
+                cartExpenditureEventPublisher,
+                shoppingCartEventPublisher);
     }
 
     @Test
     @Order(1)
     void shoppingCartCanBeAdded() {
         createdShoppingCart = shoppingCartService.createShoppingCart();
-        verify(shoppingCartRepository).save(mapper.map(createdShoppingCart, ShoppingCartEntity.class));
+        verify(shoppingCartEventPublisher).publish(mapper.map(createdShoppingCart, SaveShoppingCartDTO.class));
     }
 
     @Test

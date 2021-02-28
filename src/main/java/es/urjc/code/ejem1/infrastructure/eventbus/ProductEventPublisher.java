@@ -2,7 +2,6 @@ package es.urjc.code.ejem1.infrastructure.eventbus;
 
 import es.urjc.code.ejem1.domain.dto.CreateProductDTO;
 import es.urjc.code.ejem1.domain.dto.DeleteProductDTO;
-import es.urjc.code.ejem1.domain.dto.FullCartExpenditureDTO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
