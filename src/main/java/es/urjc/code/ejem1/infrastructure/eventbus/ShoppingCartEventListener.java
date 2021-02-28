@@ -1,5 +1,6 @@
 package es.urjc.code.ejem1.infrastructure.eventbus;
 
+import es.urjc.code.ejem1.domain.dto.DeleteShoppingCartDto;
 import es.urjc.code.ejem1.domain.dto.SaveShoppingCartDTO;
 import es.urjc.code.ejem1.infrastructure.entity.ShoppingCartEntity;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAShoppingCartRepository;
@@ -20,6 +21,11 @@ public class ShoppingCartEventListener {
     @EventListener
     private void createShoppingCart(SaveShoppingCartDTO saveShoppingCartDTO) {
         this.shoppingCartRepository.save(mapper.map(saveShoppingCartDTO, ShoppingCartEntity.class));
+    }
+
+    @EventListener
+    private void deleteShoppingCart(DeleteShoppingCartDto deleteShoppingCartDto) {
+        this.shoppingCartRepository.deleteById(deleteShoppingCartDto.getId());
     }
 
 }

@@ -86,7 +86,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
     @Override
     public FullShoppingCartDTO deleteShoppingCart(Long id) {
         FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(id).orElseThrow(() -> new ProductNotFoundException()), FullShoppingCartDTO.class);
-        shoppingCartRepository.deleteById(id);
+        publisher.delete(new DeleteShoppingCartDto(id));
 
         return fullShoppingCartDTO;
     }

@@ -1,5 +1,6 @@
 package es.urjc.code.ejem1.infrastructure.eventbus;
 
+import es.urjc.code.ejem1.domain.dto.DeleteShoppingCartDto;
 import es.urjc.code.ejem1.domain.dto.SaveShoppingCartDTO;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -15,4 +16,9 @@ public class ShoppingCartEventPublisher {
     public void publish(SaveShoppingCartDTO saveShoppingCartDTO) {
         publisher.publishEvent(saveShoppingCartDTO);
     }
+
+    public void delete(DeleteShoppingCartDto deleteShoppingCartDto) {
+        publisher.publishEvent(deleteShoppingCartDto);
+    }
+
 }
