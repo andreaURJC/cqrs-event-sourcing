@@ -9,13 +9,14 @@ import es.urjc.code.ejem1.infrastructure.exception.ProductNotFoundException;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import org.modelmapper.ModelMapper;
 
+import java.util.UUID;
+
 public class ProductCommandServiceImpl implements ProductCommandService {
 
     private ProductEventPublisher publisher;
     private final SpringDataJPAProductRepository repository;
 
     ModelMapper mapper = new ModelMapper();
-    long id = 4L;
 
     public ProductCommandServiceImpl(ProductEventPublisher publisher, SpringDataJPAProductRepository repository) {
         this.publisher = publisher;
@@ -24,10 +25,7 @@ public class ProductCommandServiceImpl implements ProductCommandService {
 
     @Override
     public FullProductDTO createProduct(ProductDTO productDTO) {
-
-        //TODO convertir a UUID
-        id += 1L;
-        productDTO.setId(id);
+        productDTO.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         CreateProductDTO createProductDto = mapper.map(productDTO, CreateProductDTO.class);
         publisher.publish(createProductDto);
 
