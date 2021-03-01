@@ -15,7 +15,6 @@ import es.urjc.code.ejem1.domain.model.ShoppingCartStatus;
 public class ShoppingCartEntity {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private ShoppingCartStatus status;
 
