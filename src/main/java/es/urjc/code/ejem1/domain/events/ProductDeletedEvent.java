@@ -1,13 +1,13 @@
-package es.urjc.code.ejem1.domain.dto;
+package es.urjc.code.ejem1.domain.events;
 
-public class DeleteProductDTO {
+public class ProductDeletedEvent {
 
     Long id;
 
-    public DeleteProductDTO() {
+    public ProductDeletedEvent() {
     }
 
-    public DeleteProductDTO(Long id) {
+    public ProductDeletedEvent(Long id) {
         this.id = id;
     }
 

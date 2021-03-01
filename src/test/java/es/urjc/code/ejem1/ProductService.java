@@ -1,9 +1,9 @@
 package es.urjc.code.ejem1;
 
-import es.urjc.code.ejem1.domain.dto.CreateProductDTO;
-import es.urjc.code.ejem1.domain.dto.DeleteProductDTO;
 import es.urjc.code.ejem1.domain.dto.FullProductDTO;
 import es.urjc.code.ejem1.domain.dto.ProductDTO;
+import es.urjc.code.ejem1.domain.events.ProductCreatedEvent;
+import es.urjc.code.ejem1.domain.events.ProductDeletedEvent;
 import es.urjc.code.ejem1.domain.model.Product;
 import es.urjc.code.ejem1.domain.service.command.ProductCommandServiceImpl;
 import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
@@ -46,13 +46,13 @@ public class ProductService {
 		ProductDTO productDTO = mapper.map(product, ProductDTO.class);
 
 		createdProduct = productService.createProduct(productDTO);
-		verify(publisher).publish(mapper.map(createdProduct, CreateProductDTO.class));
+		verify(publisher).publish(mapper.map(createdProduct, ProductCreatedEvent.class));
 	}
 
 	@Test
 	@Order(2)
 	void productCanBeDeleted() {
 		productService.deleteProduct(createdProduct.getId());
-		verify(publisher).publish(new DeleteProductDTO(createdProduct.getId()));
+		verify(publisher).publish(new ProductDeletedEvent(createdProduct.getId()));
 	}
 }

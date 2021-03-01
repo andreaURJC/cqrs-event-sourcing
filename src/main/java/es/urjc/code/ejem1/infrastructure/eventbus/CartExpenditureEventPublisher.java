@@ -1,6 +1,6 @@
 package es.urjc.code.ejem1.infrastructure.eventbus;
 
-import es.urjc.code.ejem1.domain.dto.FullCartExpenditureDTO;
+import es.urjc.code.ejem1.domain.events.ShoppingCartClosedEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ public class CartExpenditureEventPublisher {
         this.publisher = publisher;
     }
 
-    public void publish(FullCartExpenditureDTO fullCartExpenditureDTO) {
-        publisher.publishEvent(fullCartExpenditureDTO);
+    public void publish(ShoppingCartClosedEvent shoppingCartClosedEvent) {
+        publisher.publishEvent(shoppingCartClosedEvent);
     }
 }

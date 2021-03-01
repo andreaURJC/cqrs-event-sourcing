@@ -1,23 +1,21 @@
 package es.urjc.code.ejem1.domain.service.command;
 
 import es.urjc.code.ejem1.domain.dto.*;
+import es.urjc.code.ejem1.domain.events.ShoppingCartDeletedEvent;
+import es.urjc.code.ejem1.domain.events.ShoppingCartSavedEvent;
 import es.urjc.code.ejem1.domain.service.ValidationService;
 import es.urjc.code.ejem1.domain.model.Product;
 import es.urjc.code.ejem1.domain.model.ShoppingCart;
 import es.urjc.code.ejem1.domain.model.ShoppingCartItem;
 import es.urjc.code.ejem1.domain.model.ShoppingCartStatus;
-import es.urjc.code.ejem1.infrastructure.entity.ProductEntity;
 import es.urjc.code.ejem1.infrastructure.eventbus.CartExpenditureEventPublisher;
-import es.urjc.code.ejem1.infrastructure.entity.ShoppingCartEntity;
-import es.urjc.code.ejem1.infrastructure.eventbus.ProductEventPublisher;
 import es.urjc.code.ejem1.infrastructure.eventbus.ShoppingCartEventPublisher;
+import es.urjc.code.ejem1.domain.events.ShoppingCartClosedEvent;
 import es.urjc.code.ejem1.infrastructure.exception.ProductNotFoundException;
 import es.urjc.code.ejem1.infrastructure.exception.ShoppingCartNotFoundException;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductRepository;
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAShoppingCartRepository;
 import org.modelmapper.ModelMapper;
-
-import java.util.Optional;
 
 public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandService {
 
@@ -44,10 +42,9 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
     }
 
     private FullShoppingCartDTO saveShoppingCart(SaveShoppingCartDTO saveShoppingCartDTO) {
-        publisher.publish(saveShoppingCartDTO);
-        FullShoppingCartDTO saveFullShoppingCartDTO = mapper.map(saveShoppingCartDTO, FullShoppingCartDTO.class);
+        publisher.publish(mapper.map(saveShoppingCartDTO, ShoppingCartSavedEvent.class));
 
-        return saveFullShoppingCartDTO;
+        return mapper.map(saveShoppingCartDTO, FullShoppingCartDTO.class);
     }
 
     @Override
@@ -77,7 +74,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
         FullShoppingCartDTO savedFullShoppingCartDTO = saveShoppingCart(newShoppingCartDTO);
 
         if (shoppingCart.isCompleted()) {
-            this.cartExpenditureEventPublisher.publish(new FullCartExpenditureDTO(savedFullShoppingCartDTO.getId(), savedFullShoppingCartDTO.getPrice()));
+            this.cartExpenditureEventPublisher.publish(new ShoppingCartClosedEvent(savedFullShoppingCartDTO.getId(), savedFullShoppingCartDTO.getPrice()));
         }
 
         return savedFullShoppingCartDTO;
@@ -85,8 +82,8 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
 
     @Override
     public FullShoppingCartDTO deleteShoppingCart(Long id) {
-        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(id).orElseThrow(() -> new ProductNotFoundException()), FullShoppingCartDTO.class);
-        publisher.delete(new DeleteShoppingCartDto(id));
+        FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(id).orElseThrow(ProductNotFoundException::new), FullShoppingCartDTO.class);
+        publisher.delete(new ShoppingCartDeletedEvent(id));
 
         return fullShoppingCartDTO;
     }
@@ -94,9 +91,9 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
     @Override
     public FullShoppingCartDTO addProduct(Long idShoppingCart, Long idProduct, int quantity) {
         FullProductDTO fullProductDTO = mapper.map(productRepository.findById(idProduct)
-                .orElseThrow(() -> new ProductNotFoundException()), FullProductDTO.class);
+                .orElseThrow(ProductNotFoundException::new), FullProductDTO.class);
         FullShoppingCartDTO fullShoppingCartDTO = mapper.map(shoppingCartRepository.findById(idShoppingCart)
-                .orElseThrow(() -> new ShoppingCartNotFoundException()), FullShoppingCartDTO.class);
+                .orElseThrow(ShoppingCartNotFoundException::new), FullShoppingCartDTO.class);
 
         return addProduct(fullProductDTO, fullShoppingCartDTO, quantity);
     }

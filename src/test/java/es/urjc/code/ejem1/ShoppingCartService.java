@@ -1,6 +1,7 @@
 package es.urjc.code.ejem1;
 
 import es.urjc.code.ejem1.domain.dto.*;
+import es.urjc.code.ejem1.domain.events.ShoppingCartSavedEvent;
 import es.urjc.code.ejem1.domain.service.command.ProductCommandServiceImpl;
 import es.urjc.code.ejem1.domain.service.command.ShoppingCartCommandServiceImpl;
 import es.urjc.code.ejem1.domain.model.Product;
@@ -62,7 +63,7 @@ public class ShoppingCartService {
     @Order(1)
     void shoppingCartCanBeAdded() {
         createdShoppingCart = shoppingCartService.createShoppingCart();
-        verify(shoppingCartEventPublisher).publish(mapper.map(createdShoppingCart, SaveShoppingCartDTO.class));
+        verify(shoppingCartEventPublisher).publish(mapper.map(createdShoppingCart, ShoppingCartSavedEvent.class));
     }
 
     @Test
