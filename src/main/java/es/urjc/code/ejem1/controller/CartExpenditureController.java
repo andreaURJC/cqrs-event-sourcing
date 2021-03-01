@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RestController
-@RequestMapping("/api/cartexpenditure")
+@RequestMapping("/api/cartexpenditure/")
 public class CartExpenditureController {
 
     private final CartExpenditureService cartExpenditureService;
