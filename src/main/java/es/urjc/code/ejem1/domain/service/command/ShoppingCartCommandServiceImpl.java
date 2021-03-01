@@ -17,6 +17,8 @@ import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAProductReposito
 import es.urjc.code.ejem1.infrastructure.repository.SpringDataJPAShoppingCartRepository;
 import org.modelmapper.ModelMapper;
 
+import java.util.UUID;
+
 public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandService {
 
     private SpringDataJPAShoppingCartRepository shoppingCartRepository;
@@ -50,8 +52,7 @@ public class ShoppingCartCommandServiceImpl implements ShoppingCartCommandServic
     @Override
     public FullShoppingCartDTO createShoppingCart() {
         ShoppingCart shoppingCart = new ShoppingCart();
-        shoppingCart.setId(id);
-        id += 1;
+        shoppingCart.setId(UUID.randomUUID().getMostSignificantBits() & Long.MAX_VALUE);
         SaveShoppingCartDTO saveShoppingCartDTO = mapper.map(shoppingCart, SaveShoppingCartDTO.class);
 
         return saveShoppingCart(saveShoppingCartDTO);
