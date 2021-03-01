@@ -1,7 +1,5 @@
 package es.urjc.code.ejem1.infrastructure.eventbus;
 
-import es.urjc.code.ejem1.domain.dto.DeleteShoppingCartDto;
-import es.urjc.code.ejem1.domain.dto.SaveShoppingCartDTO;
 import es.urjc.code.ejem1.domain.events.ShoppingCartDeletedEvent;
 import es.urjc.code.ejem1.domain.events.ShoppingCartSavedEvent;
 import org.springframework.context.ApplicationEventPublisher;
